@@ -1,0 +1,18 @@
+#!/bin/sh
+rm -rf /cas1/*
+rm /etc/indelible/com.igeekinc.indelible/com.igeekinc.casstoremanager.properties
+cp /etc/indelible/com.igeekinc.indelible/com.igeekinc.dbfscasstore.init.properties.save /etc/indelible/com.igeekinc.indelible/com.igeekinc.dbfscasstore.init.properties
+#dropdb --user dave castest
+sudo -u postgres dropdb casdb0
+#createdb castest
+sudo -u postgres createdb casdb0
+sudo -u postgres psql --dbname indeliblefs --command "delete from cas;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from collections;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from data;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from direntries;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from forkentries;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from localevents;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from propentries;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from replicatedevents;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from stores;"
+sudo -u postgres psql --dbname indeliblefs --command "delete from versions;"

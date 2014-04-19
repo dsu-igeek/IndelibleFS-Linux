@@ -1,0 +1,17 @@
+#!/bin/sh
+INDELIBLE_HOME=/usr/share/igeek/indelible-fs/lib
+NATIVE_LIBS=/usr/lib/igeek/indelible-fs
+CLASSPATH=""
+for i in "$INDELIBLE_HOME"/*.jar
+do
+	CLASSPATH="$CLASSPATH:$i"
+done
+echo $CLASSPATH
+export CLASSPATH
+#/usr/bin/java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djdbc.drivers=org.postgresql.Driver -Djava.library.path=/usr/lib/indelible com.igeekinc.indelible.indeliblefs.server.IndelibleFSMain
+#
+# Increase the number of memory mappings available.  Default is 64K and the FS server can
+# run out of mappings
+#
+sysctl -w vm.max_map_count=1048576
+/usr/bin/java -Xmx8192m -Djdbc.drivers=org.postgresql.Driver -Djava.library.path="$NATIVE_LIBS" com.igeekinc.indelible.indeliblefs.server.IndelibleFSMain

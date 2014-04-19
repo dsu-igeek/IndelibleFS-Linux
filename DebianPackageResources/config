@@ -1,0 +1,20 @@
+#!/bin/sh
+. /usr/share/debconf/confmodule
+db_input high indelible-fs/serverport
+db_go
+db_input high indelible-fs/authserverport
+db_go
+db_input high indelible-fs/fsdbuser
+db_go
+db_input high indelible-fs/fsdbpass
+db_go
+db_input high indelible-fs/fsdburl
+db_go
+db_input high indelible-fs/casdburl
+db_go
+db_input high indelible-fs/casstorepath
+db_go
+db_input high indelible-fs/rootauthenticationserver
+db_go
+db_input high indelible-fs/clientauthenticationserver
+db_go

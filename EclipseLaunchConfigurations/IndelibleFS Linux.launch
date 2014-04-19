@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<stringAttribute key="bad_container_name" value="/Indelible-"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/IndelibleFS/src/com/igeekinc/indelible/indeliblefs/server/IndelibleFSMain.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.igeekinc.indelible.indeliblefs.server.IndelibleFSMain"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="jdbc:postgresql://localhost/castest dave pass"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="IndelibleFS-Linux"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx2048m -Djdbc.drivers=org.postgresql.Driver -Djava.library.path=${workspace_loc:IndelibleFS-Linux}/output/lib:${workspace_loc:iGeekCommon-Linux}/output/lib"/>
+</launchConfiguration>

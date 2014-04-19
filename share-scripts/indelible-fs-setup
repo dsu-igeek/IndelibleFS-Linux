@@ -1,0 +1,153 @@
+#!/bin/sh
+
+function prompt {
+	if [ -z "$2" ]
+	then
+		echo -n "$1:"
+	else
+		echo -n "$1 [$2]:"
+	fi
+	read input
+	if [ -z "$input" ]
+	then
+		input="$2"
+	fi
+}
+
+
+while [ -z "$SERVERPORT" ]
+do
+	prompt "Indelible FS Server port" "50901"
+	SERVERPORT="$input"
+done
+
+while [ -z "$AUTHSERVERPORT" ]
+do
+	prompt "Indelible Authentication Server port" "50902"
+	AUTHSERVERPORT="$input"
+done
+while [ -z "$FSDBUSER" ]
+do
+	prompt "Postgresql database user for Indelible FS" "indelible"
+	FSDBUSER="$input"
+done
+while [ -z "$FSDBPASS" ]
+do
+	prompt "Postgresql database password for Indelible FS" "indelible"
+	FSDBPASS="$input"
+done
+while [ -z "$FSDBNAME" ]
+do
+	prompt "Postgres database for Indelible FS data" "indeliblefs"
+	FSDBNAME="$input"
+done
+FSDBURL="jdbc:postgresql://localhost/$FSDBNAME"
+while [ -z "$CASSTOREPATH" ]
+do
+	EXISTS="N"
+	while [ "$EXISTS" = "N" ]
+	do
+		prompt "The directory for the CAS file store" "$CASSTOREPATH"
+		CASSTOREPATH="$input"
+		if [ ! -z "$CASSTOREPATH" -a ! -d "$CASSTOREPATH" ]
+		then
+			if [ -e "$CASSTOREPATH" ]
+			then
+				echo "$CASSTOREPATH is not a directory"
+			else
+				prompt "$CASSTOREPATH does not exist - create?" "Y"
+				if [ "$input" = "Y" -o "$input" = "y" ]
+				then
+					mkdir "$CASSTOREPATH"
+				fi
+			fi
+		fi
+		if [ -d "$CASSTOREPATH" ]
+		then
+			EXISTS="Y"
+		fi
+	done
+done
+if [ -z "$ROOTAUTHENTICATIONSERVER" ]
+then
+	prompt "The root authentication server to use (leave blank to be self-rooted)"
+	ROOTAUTHENTICATIONSERVER="$input"
+fi
+while [ -z "$CLIENTAUTHENTICATIONSERVER" ]
+do
+	prompt "The authentication server for clients to use" "localhost:50902"
+	CLIENTAUTHENTICATIONSERVER="$input"
+done
+
+if [ ! -d ~postgres/data ]
+then
+	service postgresql initdb
+fi
+if [ ! -d ~postgres/data ]
+then
+	echo "Could not initialize Postgres database, exiting"
+	exit 1
+fi
+PGHBA=~postgres/data/pg_hba.conf
+# Let's make sure that TCP is setup properly for Postgres
+if [ -e $PGHBA ]
+then
+	OLDIPV4=`grep 127.0.0.1 $PGHBA | grep ident`
+	if [ ! -z "$OLDIPV4" ]
+	then
+		NEWIPV4=`echo "$OLDIPV4" | sed -e s/ident/md5/`
+		sed -i -e "s#$OLDIPV4#$NEWIPV4#" $PGHBA
+	fi
+else
+	echo "Could not find postgres pg_hba.conf file - please make sure that local TCP connections use md5, not ident authentication"
+fi
+
+service postgresql restart
+
+DBUSEREXISTS=`su -l --command="psql postgres -tAc \"select 1 from pg_roles where rolname='$FSDBUSER'\"" postgres`
+if [ -z "$DBUSEREXISTS" ]
+then
+	echo "$FSDBUSER does not exist - creating"
+	su -l --command="psql postgres -tAc \"create user $FSDBUSER with createrole password '$FSDBPASS'\"" postgres
+fi
+DBEXISTS=`su -l --command "export PGPASSWORD=$FSDBPASS; if psql --host=127.0.0.1 --user $FSDBUSER $FSDBNAME -c '\q' > /dev/null 2>&1; then echo YES; else echo NO; fi"`
+if [ "$DBEXISTS" = "NO" ]
+then
+	su -l --command="createdb --owner $FSDBUSER --encoding UTF8 $FSDBNAME" postgres
+fi
+# Yup, it's the same thing as above - by here we expect that the database has been created so if there are any errors we'll
+# say it's in the DB setup
+USERWORKS=`su -l --command "export PGPASSWORD=$FSDBPASS; if psql --host=127.0.0.1 --user $FSDBUSER $FSDBNAME -c '\q' > /dev/null 2>&1; then echo YES; else echo NO; fi"`
+if [ "$USERWORKS" != "YES" ]
+then
+	echo "Postgres setup was not successful, exiting"
+	exit 1
+fi
+PLPGSQL=`su -l --command="createlang -U postgres -l $FSDBNAME | grep plpgsql" postgres`
+if [ -z "$PLPGSQL" ]
+then
+	su -l --command="createlang -U postgres plpgsql $FSDBNAME" postgres
+fi
+mkdir -p /etc/indelible/com.igeekinc.indelible
+echo "indelible.server.properties.autoInitEntityAuthenticationServer=Y" > /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "indelible.security.entityauthenticationserver.useRandomPort=N" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "indelible.server.properties.casDBUser=$FSDBUSER" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "com.igeekinc.indelible.server.ServerPort=$SERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "indelible.server.properties.casDBURL=$FSDBURL" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "indelible.server.properties.casDBPassword=$FSDBPASS" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "com.igeekinc.indelible.preferencesDir=/etc/indelible/com.igeekinc.indelible" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+echo "indelible.security.entityauthenticationserver.portNumber=$AUTHSERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+if [ ! -z "$ROOTAUTHENTICATIONSERVER" ]
+then
+	echo "com.igeekinc.entityauthenticationclient.initserver=$ROOTAUTHENTICATIONSERVER" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+fi
+	
+if [ ! -z "$CLIENTAUTHENTICATIONSERVER" ]
+then
+	echo "com.igeekinc.entityauthenticationclient.initserver=$CLIENTAUTHENTICATIONSERVER" >> /etc/indelible/com.igeekinc.indelible/indeliblefs.client.properties
+fi
+echo "com.igeekinc.indelible.server.ServerPort=$SERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indeliblefs.client.properties
+echo "com.igeekinc.indeliblefs.client.servers=localhost:$SERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indeliblefs.client.properties
+
+echo "com.igeekinc.indelible.indeliblefs.uniblock.casstore.jdbmfs.init.0.storePath=$CASSTOREPATH" > /etc/indelible/com.igeekinc.indelible/com.igeekinc.dbfscasstore.init.properties
+start indeliblefs

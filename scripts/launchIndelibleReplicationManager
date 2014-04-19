@@ -1,0 +1,12 @@
+#!/bin/sh
+INDELIBLE_HOME=/usr/share/igeek/indelible-fs/lib
+NATIVE_LIBS=/usr/lib/igeek/indelible-fs
+CLASSPATH=""
+for i in "$INDELIBLE_HOME"/*.jar
+do
+	CLASSPATH="$CLASSPATH:$i"
+done
+echo $CLASSPATH
+export CLASSPATH
+/usr/bin/java -Djdbc.drivers=org.postgresql.Driver -Djava.library.path="$NATIVE_LIBS" \
+com.igeekinc.indelible.indeliblefs.replication.ReplicationManager

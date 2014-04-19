@@ -1,0 +1,44 @@
+#!/bin/sh
+. /usr/share/debconf/confmodule
+if [ ! -e /etc/indelible/com.igeekinc.indelible ]
+then
+	db_get indelible-fs/casdburl
+	CASDBURL=`echo "$RET" | sed -e "s/:/\\:/g"`
+	db_get indelible-fs/fsdbuser
+	CASDBUSER="$RET"
+	db_get indelible-fs/fsdbpass
+	CASDBPASS="$RET"
+	db_get indelible-fs/casstorepath
+	CASSTOREPATH="$RET"
+	db_get indelible-fs/rootauthenticationserver
+	ROOTAUTHENTICATIONSERVER="$RET"
+	db_get indelible-fs/clientauthenticationserver
+	CLIENTAUTHENTICATIONSERVER="$RET"
+	mkdir -p /etc/indelible/com.igeekinc.indelible
+	echo "com.igeekinc.indelible.indeliblefs.uniblock.casstore.mapdbfs.init.0.storePath=$CASSTOREPATH" > /etc/indelible/com.igeekinc.indelible/com.igeekinc.dbfscasstore.init.properties
+	db_get indelible-fs/serverport
+	SERVERPORT="$RET"
+	db_get indelible-fs/fsdburl
+	FSDBURL="$RET"
+	db_get indelible-fs/authserverport
+	AUTHSERVERPORT="$RET"
+	echo "indelible.server.properties.autoInitEntityAuthenticationServer=Y" > /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "indelible.security.entityauthenticationserver.useRandomPort=N" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "indelible.server.properties.casDBUser=$CASDBUSER" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "com.igeekinc.indelible.server.ServerPort=$SERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "indelible.server.properties.casDBURL=$FSDBURL" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "indelible.server.properties.casDBPassword=$CASDBPASS" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "com.igeekinc.indelible.preferencesDir=/etc/indelible/com.igeekinc.indelible" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	echo "indelible.security.entityauthenticationserver.portNumber=$AUTHSERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	if [ ! -z "$ROOTAUTHENTICATIONSERVER" ]
+	then
+		echo "com.igeekinc.entityauthenticationclient.initserver=$ROOTAUTHENTICATIONSERVER" >> /etc/indelible/com.igeekinc.indelible/indelible.server.properties
+	fi
+	
+	if [ ! -z "$CLIENTAUTHENTICATIONSERVER" ]
+	then
+		echo "com.igeekinc.entityauthenticationclient.initserver=$CLIENTAUTHENTICATIONSERVER" >> /etc/indelible/com.igeekinc.indelible/indeliblefs.client.properties
+	fi
+	echo "com.igeekinc.indelible.server.ServerPort=$SERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indeliblefs.client.properties
+	echo "com.igeekinc.indeliblefs.client.servers=localhost:$SERVERPORT" >> /etc/indelible/com.igeekinc.indelible/indeliblefs.client.properties
+fi

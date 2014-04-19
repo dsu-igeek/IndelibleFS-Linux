@@ -1,0 +1,15 @@
+#!/bin/sh
+CLASSPATH=../iGeekCommon/output/javaObjs:../iGeekCommon/output/testObjs:../iGeekCommon-Linux/output/javaObjs:../iGeekCommon-Linux/output/testObjs:../Indelible/output/igeek/javaObjs:../Indelible/output/testObjs:../Indelible-Linux/output/javaObjs:../Indelible-Linux/output/testObjs
+for i in ../iGeekCommon/mergelibs/* ../iGeekCommon/testlibs/* ../iGeekCommon/separatelibs/* ../iGeekCommon-Linux/mergelibs/* ../Indelible/mergelibs/* mergelibs/* separatelibs/*
+do
+	CLASSPATH=`echo $CLASSPATH`":$i"
+done
+export CLASSPATH
+echo $CLASSPATH
+
+export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64"
+#-Dcom.igeekinc.util.helperspath=output/prosoft/dstroot/Applications/Data\ Backup/DataBackup.app/Contents/Helpers 
+$JAVA_HOME/bin/java -Djava.library.path=nativesrc/libs/avahi4j-0.1:../iGeekCommon-Linux/output/lib \
+-Dcom.igeekinc.util.globalPreferencesDir=globalPrefs \
+-Dcom.igeekinc.util.userPreferencesDir=userPrefs \
+com.igeekinc.indelible.indeliblefs.datamover.DataMoverTargetMain

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="IndelibleFS-Linux" default="buildDist" basedir=".">
+	<import file="../IndelibleFS/version.xml"/>
+	<import file="../iGeekCommon-Linux/build-common-linux.xml"/>
+	<target name="localProperties">
+		<property name="jarName" value="IndelibleFS-Linux.jar"/>
+		<property name="debianBuild" value="${output}/Debian"/>
+		<property name="debianPackageName" value="indelible-fs"/>
+		<property name="rpmSpecFile" value="indelible-fs.spec"/>
+	</target>
+
+	<target name="setupOtherProjects">
+		<addOtherProject otherProjectName="IndelibleFS" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="iGeekCommon" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="iGeekCommon-Linux" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="IndelibleFSClient" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="IndelibleFSClient-Linux" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="IndelibleServerCore" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="IndelibleServerCore-Linux" classPathRefID="localLibs"/>
+		<addOtherProject otherProjectName="Luwak" classPathRefID="localLibs"/>
+	</target>
+	<target name="init" depends="iGeekBuildCommonLinux.init">
+		<mkdir dir="${debianBuild}"/>
+	</target>
+	<target name="install-rh" depends="iGeekBuildCommonLinux.install-rh">
+		<local name="shareBinDir"/><property name="shareBinDir" location="${rpmPackageRoot}/usr/share/igeek/${debianPackageName}/bin"/>
+		<mkdir dir="${shareBinDir}"/>
+		<copy toDir="${shareBinDir}">
+			<fileset dir="share-scripts">
+				<include name="*"/>
+			</fileset>
+		</copy>
+		<exec executable="/bin/sh" dir="${shareBinDir}" failonerror="true">
+			<arg value="-c"/>
+			<arg value="/bin/chmod +x *"/>
+		</exec>
+	</target>
+	<target name="install-debian" depends="iGeekBuildCommonLinux.install-debian">
+		<local name="shareBinDir"/><property name="shareBinDir" location="${debianPackageRoot}/usr/share/igeek/${debianPackageName}/bin"/>
+		<mkdir dir="${shareBinDir}"/>
+		<copy toDir="${shareBinDir}">
+			<fileset dir="share-scripts">
+				<include name="*"/>
+			</fileset>
+		</copy>
+		<exec executable="/bin/sh" dir="${shareBinDir}" failonerror="true">
+			<arg value="-c"/>
+			<arg value="/bin/chmod +x *"/>
+		</exec>
+	</target>
+</project>

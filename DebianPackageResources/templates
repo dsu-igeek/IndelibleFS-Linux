@@ -1,0 +1,41 @@
+Template:indelible-fs/fsdburl
+Type: string
+Default: jdbc:postgresql://localhost/indeliblefs
+Description: The JDBC URL for the indelible FS:
+
+Template:indelible-fs/casdburl
+Type: string
+Default: jdbc:postgresql://localhost/casdb0
+Description: The JDBC URL for the initial CAS store:
+
+Template:indelible-fs/serverport
+Type: string
+Default: 50901
+Description: Indelible FS Server port:
+
+Template:indelible-fs/authserverport
+Type: string
+Default: 50902
+Description: Indelible Authentication Server port:
+
+Template:indelible-fs/fsdbuser
+Type: string
+Default: indelible
+Description: The database user:
+
+Template:indelible-fs/fsdbpass
+Type: string
+Description: The database password:
+
+Template:indelible-fs/casstorepath
+Type: string
+Description: The directory for the CAS file store:
+
+Template:indelible-fs/rootauthenticationserver
+Type: string
+Description: The root authentication server to use (leave blank to be self-rooted):
+
+Template:indelible-fs/clientauthenticationserver
+Type: string
+Default: localhost:50902
+Description: The authentication server for clients to use:
