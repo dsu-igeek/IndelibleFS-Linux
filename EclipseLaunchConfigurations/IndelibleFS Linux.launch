@@ -10,5 +10,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.igeekinc.indelible.indeliblefs.server.IndelibleFSMain"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="jdbc:postgresql://localhost/castest dave pass"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="IndelibleFS-Linux"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx2048m -Djdbc.drivers=org.postgresql.Driver -Djava.library.path=${workspace_loc:IndelibleFS-Linux}/output/lib:${workspace_loc:iGeekCommon-Linux}/output/lib"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx4096m -Djdbc.drivers=org.postgresql.Driver -Djava.library.path=${workspace_loc:IndelibleFS-Linux}/output/lib:${workspace_loc:iGeekCommon-Linux}/output/lib"/>
 </launchConfiguration>

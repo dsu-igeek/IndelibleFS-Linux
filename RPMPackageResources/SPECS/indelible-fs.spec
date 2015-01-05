@@ -1,6 +1,6 @@
 Name:	indelible-fs	
 Version:	@REVISION@
-Release:	1%{?dist}
+Release:	@BUILD@
 Summary:	Indelible FS Storage Management System Core File system
 Group:		System Environment/Daemons
 License:	Apache
